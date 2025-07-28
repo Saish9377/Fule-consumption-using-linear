@@ -3,25 +3,33 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-import os
 
-# Title
+# ------------------------------
+# 📥 Load and cache dataset
+@st.cache_data
+def load_data():
+    csv_path = os.path.join(os.path.dirname(__file__), 'FuelConsumption.csv')
+    df = pd.read_csv(csv_path)
+    return df
+
+# ------------------------------
+# App Title
 st.title("⛽ Fuel Consumption Prediction")
 st.write("Predict fuel consumption based on engine size or number of cylinders using Linear Regression")
 
-# Try to load the file
-file_path = r"C:\Users\saish\Downloads\FuelConsumption.csv"
-
-if os.path.exists(file_path):
-    df = pd.read_csv(file_path)
+# ------------------------------
+# Load data
+try:
+    df = load_data()
 
     # Show sample data
     st.subheader("📊 Sample Data")
     st.dataframe(df.head())
 
-    # Sidebar feature selection
+    # Sidebar: Select feature
     st.sidebar.header("🔧 Select Feature for Prediction")
     feature_choice = st.sidebar.selectbox("Choose input feature", ["ENGINE SIZE", "CYLINDERS"])
 
@@ -29,7 +37,7 @@ if os.path.exists(file_path):
     X = df[[feature_choice]]
     y = df[['FUEL CONSUMPTION']]
 
-    # Split
+    # Train/Test Split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
     # Train model
@@ -45,7 +53,7 @@ if os.path.exists(file_path):
     st.write(f"**Slope (a):** {a:.4f}")
     st.write(f"**Intercept (b):** {b:.4f}")
 
-    # Sidebar input for prediction
+    # Sidebar: Prediction input
     st.sidebar.subheader("🎯 Predict Fuel Consumption")
     min_val = float(X[feature_choice].min())
     max_val = float(X[feature_choice].max())
@@ -73,6 +81,5 @@ if os.path.exists(file_path):
     ax2.legend()
     st.pyplot(fig2)
 
-else:
-    st.error("❌ File not found. Please make sure `FuelConsumption.csv` exists at this path:\n"
-             f"`{file_path}`")
+except FileNotFoundError:
+    st.error("❌ `FuelConsumption.csv` not found in the app directory. Please make sure the file exists next to this script.")
