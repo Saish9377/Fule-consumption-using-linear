@@ -5,23 +5,23 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+import os
 
-# Page Title
+# Title
 st.title("⛽ Fuel Consumption Prediction")
 st.write("Predict fuel consumption based on engine size or number of cylinders using Linear Regression")
 
-# File uploader
-uploaded_file = st.file_uploader("📂 Upload FuelConsumption.csv file", type=["csv"])
+# Try to load the file
+file_path = r"C:\Users\saish\Downloads\FuelConsumption.csv"
 
-if uploaded_file is not None:
-    # Load data
-    df = pd.read_csv(uploaded_file)
+if os.path.exists(file_path):
+    df = pd.read_csv(file_path)
 
     # Show sample data
     st.subheader("📊 Sample Data")
     st.dataframe(df.head())
 
-    # Sidebar: Select feature
+    # Sidebar feature selection
     st.sidebar.header("🔧 Select Feature for Prediction")
     feature_choice = st.sidebar.selectbox("Choose input feature", ["ENGINE SIZE", "CYLINDERS"])
 
@@ -29,7 +29,7 @@ if uploaded_file is not None:
     X = df[[feature_choice]]
     y = df[['FUEL CONSUMPTION']]
 
-    # Train/Test Split
+    # Split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
     # Train model
@@ -45,7 +45,7 @@ if uploaded_file is not None:
     st.write(f"**Slope (a):** {a:.4f}")
     st.write(f"**Intercept (b):** {b:.4f}")
 
-    # Sidebar: Prediction input
+    # Sidebar input for prediction
     st.sidebar.subheader("🎯 Predict Fuel Consumption")
     min_val = float(X[feature_choice].min())
     max_val = float(X[feature_choice].max())
@@ -55,7 +55,7 @@ if uploaded_file is not None:
     predicted_fuel = model.predict([[input_val]])[0][0]
     st.sidebar.success(f"Predicted Fuel Consumption: **{predicted_fuel:.2f}**")
 
-    # Plot 1: Prediction plot
+    # Plot 1
     st.subheader(f"📉 {feature_choice} vs Fuel Consumption with Prediction")
     fig1, ax1 = plt.subplots()
     sns.scatterplot(x=feature_choice, y='FUEL CONSUMPTION', data=df, ax=ax1)
@@ -64,7 +64,7 @@ if uploaded_file is not None:
     ax1.legend()
     st.pyplot(fig1)
 
-    # Plot 2: Both Engine Size & Cylinders vs Fuel Consumption
+    # Plot 2
     st.subheader("🟡 Scatter Plot: Engine Size & Cylinders vs Fuel Consumption")
     fig2, ax2 = plt.subplots()
     sns.scatterplot(x='ENGINE SIZE', y='FUEL CONSUMPTION', data=df, label='Engine Size', color='blue', ax=ax2)
@@ -74,4 +74,5 @@ if uploaded_file is not None:
     st.pyplot(fig2)
 
 else:
-    st.warning("Please upload the FuelConsumption.csv file to proceed.")
+    st.error("❌ File not found. Please make sure `FuelConsumption.csv` exists at this path:\n"
+             f"`{file_path}`")
